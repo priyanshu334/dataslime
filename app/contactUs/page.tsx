@@ -134,4 +134,5 @@ const TextAreaField = ({ icon, name, placeholder, onChange, required }: any) => 
   <div className="flex items-start border border-gray-300 rounded-lg px-4 py-2 bg-white shadow-sm">
     {icon} <textarea name={name} placeholder={placeholder} className="w-full focus:outline-none resize-none ml-3" rows={3} onChange={onChange} required={required}></textarea>
   </div>
+
 );
