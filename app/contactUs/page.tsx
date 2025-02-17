@@ -18,22 +18,45 @@ export default function ContactForm() {
     email: '',
     phone: '',
     subject: '',
-    message: ''
+    message: '',
   });
+
+  const [loading, setLoading] = useState(false);
+  const [responseMessage, setResponseMessage] = useState<string | null>(null);
 
   const handleChange = (e: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log('Form Submitted', formData);
+    setLoading(true);
+
+    try {
+      const response = await fetch('/api/send-email', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(formData),
+      });
+
+      const result = await response.json();
+      setLoading(false);
+
+      if (result.success) {
+        setResponseMessage('Email sent successfully!');
+        setFormData({ name: '', email: '', phone: '', subject: '', message: '' });
+      } else {
+        setResponseMessage('Error sending email.');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      setResponseMessage('Failed to send email.');
+      setLoading(false);
+    }
   };
 
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-r from-blue-100 to-blue-300 p-6">
-
-      {/* Contact Section */}
       <motion.div 
         initial={{ opacity: 0, y: 50 }} 
         animate={{ opacity: 1, y: 0 }} 
@@ -44,7 +67,6 @@ export default function ContactForm() {
         <p className="text-center text-gray-700 mb-8 text-lg">Have Questions? We Have Answers!</p>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          
           {/* Contact Info */}
           <motion.div 
             initial={{ opacity: 0, x: -50 }}
@@ -62,7 +84,7 @@ export default function ContactForm() {
                 <Phone className="mr-3 text-blue-600" /> +91 8827280366
               </p>
               <p className="flex items-center text-gray-900 font-semibold text-lg">
-                <Mail className="mr-3 text-blue-600" /> dataslime77@gmail.com
+                <Mail className="mr-3 text-blue-600" /> Support@dataslime.com
               </p>
             </div>
           </motion.div>
@@ -76,52 +98,40 @@ export default function ContactForm() {
           >
             <h3 className="text-2xl font-bold text-black mb-3">Send a Message</h3>
             <form onSubmit={handleSubmit} className="space-y-4">
-              <div className="flex items-center border border-gray-300 rounded-lg px-4 py-2 bg-white shadow-sm">
-                <User className="text-gray-500 mr-3" />
-                <input type="text" name="name" placeholder="Your Name" className="w-full focus:outline-none" onChange={handleChange} required />
-              </div>
-              <div className="flex items-center border border-gray-300 rounded-lg px-4 py-2 bg-white shadow-sm">
-                <Mail className="text-gray-500 mr-3" />
-                <input type="email" name="email" placeholder="Email Address" className="w-full focus:outline-none" onChange={handleChange} required />
-              </div>
-              <div className="flex items-center border border-gray-300 rounded-lg px-4 py-2 bg-white shadow-sm">
-                <Phone className="text-gray-500 mr-3" />
-                <input type="text" name="phone" placeholder="Phone Number" className="w-full focus:outline-none" onChange={handleChange} />
-              </div>
-              <div className="flex items-center border border-gray-300 rounded-lg px-4 py-2 bg-white shadow-sm">
-                <MessageCircle className="text-gray-500 mr-3" />
-                <input type="text" name="subject" placeholder="Subject" className="w-full focus:outline-none" onChange={handleChange} required />
-              </div>
-              <div className="flex items-start border border-gray-300 rounded-lg px-4 py-2 bg-white shadow-sm">
-                <MessageCircle className="text-gray-500 mr-3 mt-1" />
-                <textarea name="message" placeholder="Message" className="w-full focus:outline-none resize-none" rows={3} onChange={handleChange} required></textarea>
-              </div>
+              <InputField icon={<User />} name="name" placeholder="Your Name" onChange={handleChange} required />
+              <InputField icon={<Mail />} name="email" placeholder="Email Address" onChange={handleChange} required />
+              <InputField icon={<Phone />} name="phone" placeholder="Phone Number" onChange={handleChange} />
+              <InputField icon={<MessageCircle />} name="subject" placeholder="Subject" onChange={handleChange} required />
+              <TextAreaField icon={<MessageCircle />} name="message" placeholder="Message" onChange={handleChange} required />
+
               <motion.button 
                 type="submit"
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 className="w-full bg-blue-600 text-white flex items-center justify-center py-3 rounded-lg hover:bg-blue-700 transition-all duration-300 shadow-md"
               >
-                <Send className="mr-2" /> Send Message
+                {loading ? 'Sending...' : <><Send className="mr-2" /> Send Message</>}
               </motion.button>
+
+              {responseMessage && <p className="text-center text-gray-800 mt-3">{responseMessage}</p>}
             </form>
           </motion.div>
         </div>
       </motion.div>
-
-      {/* Footer Section */}
-      <motion.div 
-        initial={{ opacity: 0, y: 50 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.8 }}
-        className="mt-16 text-center py-6 text-gray-900"
-        style={{
-          background: "linear-gradient(135.94deg, #D8E6EF 27.28%, #B4D8E4 87.37%)",
-        }}
-      >
-        <p className="text-xl font-bold">Data That Flows</p>
-        <p className="text-lg text-gray-700">Innovation that Sticks!</p>
-      </motion.div>
     </div>
   );
 }
+
+// Input Field Component
+const InputField = ({ icon, name, placeholder, onChange, required }: any) => (
+  <div className="flex items-center border border-gray-300 rounded-lg px-4 py-2 bg-white shadow-sm">
+    {icon} <input type="text" name={name} placeholder={placeholder} className="w-full focus:outline-none ml-3" onChange={onChange} required={required} />
+  </div>
+);
+
+// TextArea Field Component
+const TextAreaField = ({ icon, name, placeholder, onChange, required }: any) => (
+  <div className="flex items-start border border-gray-300 rounded-lg px-4 py-2 bg-white shadow-sm">
+    {icon} <textarea name={name} placeholder={placeholder} className="w-full focus:outline-none resize-none ml-3" rows={3} onChange={onChange} required={required}></textarea>
+  </div>
+);
