@@ -1,6 +1,7 @@
-"use client"
+"use client";
 import { useState } from "react";
 import { Menu, X } from "lucide-react";
+import { motion } from "framer-motion";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -20,18 +21,10 @@ const Navbar = () => {
 
       {/* Desktop Navigation */}
       <div className="hidden md:flex space-x-6">
-        <a href="/" className="text-gray-900 hover:text-blue-500">
-          Home
-        </a>
-        <a href="/services" className="text-gray-900 hover:text-blue-500">
-          Services
-        </a>
-        <a href="/projects" className="text-gray-900 hover:text-blue-500">
-          Projects
-        </a>
-        <a href="/aboutUs" className="text-gray-900 hover:text-blue-500">
-          About Us
-        </a>
+        <a href="/" className="text-gray-900 hover:text-blue-500">Home</a>
+        <a href="/services" className="text-gray-900 hover:text-blue-500">Services</a>
+        <a href="/projects" className="text-gray-900 hover:text-blue-500">Projects</a>
+        <a href="/aboutUs" className="text-gray-900 hover:text-blue-500">About Us</a>
       </div>
 
       {/* Contact Button */}
@@ -45,35 +38,36 @@ const Navbar = () => {
       </div>
 
       {/* Mobile Menu Button */}
-      <button
-        className="md:hidden text-gray-900"
-        onClick={() => setIsOpen(!isOpen)}
-      >
-        {isOpen ? <X size={28} /> : <Menu size={28} />}
+      <button className="md:hidden text-gray-900" onClick={() => setIsOpen(true)}>
+        <Menu size={28} />
       </button>
 
-      {/* Mobile Menu */}
+      {/* Mobile Drawer */}
       {isOpen && (
-        <div className="absolute top-16 left-0 w-full bg-white shadow-md flex flex-col items-center space-y-4 py-4 md:hidden">
-          <a href="/" className="text-gray-900 hover:text-blue-500">
-            Home
-          </a>
-          <a href="/services" className="text-gray-900 hover:text-blue-500">
-            Services
-          </a>
-          <a href="/projects" className="text-gray-900 hover:text-blue-500">
-            Projects
-          </a>
-          <a href="/aboutUs" className="text-gray-900 hover:text-blue-500">
-            About Us
-          </a>
+        <motion.div
+          initial={{ x: "100%" }}
+          animate={{ x: 0 }}
+          exit={{ x: "100%" }}
+          transition={{ duration: 0.3 }}
+          className="fixed top-0 right-0 h-full w-3/4 bg-white shadow-lg flex flex-col items-center p-6 space-y-6 z-50"
+        >
+          {/* Close Button */}
+          <button className="self-end text-gray-900" onClick={() => setIsOpen(false)}>
+            <X size={28} />
+          </button>
+          
+          {/* Mobile Menu Links */}
+          <a href="/" className="text-gray-900 text-lg hover:text-blue-500">Home</a>
+          <a href="/services" className="text-gray-900 text-lg hover:text-blue-500">Services</a>
+          <a href="/projects" className="text-gray-900 text-lg hover:text-blue-500">Projects</a>
+          <a href="/aboutUs" className="text-gray-900 text-lg hover:text-blue-500">About Us</a>
           <a
             href="/contactUs"
             className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition"
           >
             Contact Us
           </a>
-        </div>
+        </motion.div>
       )}
     </nav>
   );
